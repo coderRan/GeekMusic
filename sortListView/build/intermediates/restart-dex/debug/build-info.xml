@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<instant-run
+    abi="arm64-v8a,armeabi-v7a,armeabi"
+    api-level="21"
+    density="xxhdpi"
+    format="7"
+    timestamp="2633501085786"
+    token="3129495429112356678" >
+
+    <task
+        name="javac"
+        duration="327" />
+    <task
+        name="instant-run-dex"
+        duration="0" />
+    <task
+        name="instant-run-transform"
+        duration="516" />
+    <task
+        name="verifier"
+        duration="6" />
+
+    <artifact
+        location="/home/zdr/AndroidStudioProjects/GeekMusic/sortListView/build/outputs/apk/sortListView-debug.apk"
+        type="MAIN" />
+
+    <build timestamp="2633501085786" >
+        <artifact
+            location="/home/zdr/AndroidStudioProjects/GeekMusic/sortListView/build/outputs/apk/sortListView-debug.apk"
+            type="MAIN" />
+    </build>
+
+</instant-run>
