@@ -1,31 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
     tools:context="com.zdr.geekmusic.PlayMusicActivity">
-    <Button
-        android:text="@string/start"
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_music_name"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/colorText"
+            android:textSize="30sp"
+            android:text="歌曲名"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:gravity="center"
+            android:id="@+id/tv_music_artist"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/main_text_size"
+            android:text="歌曲名"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <co.mobiwise.playerview.MusicPlayerView
+        android:layout_below="@id/ll_title"
+        android:id="@+id/mpv"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        app:buttonColor="#FF0028"
+        app:cover="@mipmap/mycover"
+        app:progressEmptyColor="#20FFFFFF"
+        app:progressLoadedColor="#00815E"
+        app:textColor="#80FFFFFF"
+        app:textSize="14sp" />
+    <RelativeLayout
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:id="@+id/rl_time"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/mpv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_start"/>
-    <Button
-        android:text="@string/stop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_stop"/>
-    <Button
-        android:text="@string/pause"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_pause"/>
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_currTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="时间"/>
+        <TextView
+            android:layout_alignParentRight="true"
+            android:id="@+id/tv_Duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="时间"/>
+    </RelativeLayout>
     <SeekBar
-        android:id="@+id/sb_progress"
+        android:layout_below="@id/rl_time"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:id="@+id/sb_progress_bar"/>
+    <LinearLayout
+        android:layout_marginBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+        <ImageView
+            android:scaleType="fitCenter"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/icon_previous" />
+        <ImageView
+            android:scaleType="fitCenter"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/icon_like" />
+        <ImageView
+            android:scaleType="fitCenter"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/icon_next" />
+    </LinearLayout>
+</RelativeLayout>
