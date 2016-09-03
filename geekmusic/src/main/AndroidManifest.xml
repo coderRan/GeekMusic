@@ -18,9 +18,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlayMusicActivity" />
-        <activity android:name=".Main2Activity">
+        <activity android:name=".Main2Activity"></activity>
 
-        </activity>
+        <service android:name=".service.MusicService" />
+
     </application>
 
 </manifest>

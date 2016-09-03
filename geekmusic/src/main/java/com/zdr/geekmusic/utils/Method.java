@@ -7,7 +7,7 @@ package com.zdr.geekmusic.utils;
 public class Method {
 
     /**
-     * 返回一个时间格式为04：35
+     * 返回一个时间格式 04：35
      * @param seconds 毫秒值
      * @return 格式化后的时间
      */

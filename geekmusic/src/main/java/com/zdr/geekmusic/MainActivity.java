@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
     //初始化音乐
     private void findMusic() {
         musics = new ArrayList<>();
-
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         ContentResolver resolver = getContentResolver();
         Cursor cursor = resolver.query(uri,

@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/zdr/AndroidStudioProjects/GeekMusic/playerview/build/intermediates/res/merged/androidTest/debug/drawable/icon_pause.png",
+        "source": "/home/zdr/AndroidStudioProjects/GeekMusic/playerview/build/intermediates/bundles/debug/res/drawable/icon_pause.png"
+    },
+    {
+        "merged": "/home/zdr/AndroidStudioProjects/GeekMusic/playerview/build/intermediates/res/merged/androidTest/debug/drawable/icon_play.png",
+        "source": "/home/zdr/AndroidStudioProjects/GeekMusic/playerview/build/intermediates/bundles/debug/res/drawable/icon_play.png"
+    }
+]

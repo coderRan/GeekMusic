@@ -1,19 +1,23 @@
 package com.zdr.geekmusic;
 
-import android.graphics.Color;
-import android.media.MediaPlayer;
-import android.net.Uri;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.zdr.geekmusic.entity.Music;
+import com.zdr.geekmusic.service.MusicPlayer;
+import com.zdr.geekmusic.service.MusicService;
 import com.zdr.geekmusic.utils.Method;
 
-import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,8 +25,6 @@ import butterknife.OnClick;
 import co.mobiwise.playerview.MusicPlayerView;
 
 public class PlayMusicActivity extends AppCompatActivity {
-
-
     @BindView(R.id.mpv)
     MusicPlayerView mpv;
     @BindView(R.id.tv_music_name)
@@ -37,29 +39,25 @@ public class PlayMusicActivity extends AppCompatActivity {
     TextView tvDuration;
 
     private Music music;
-    private MediaPlayer player;
+    //private MediaPlayer player;
     private Handler handler = new Handler();
-
+    private ServiceConnection musicConn;
+    private MusicPlayer musicPlayer;
+    private Intent startMusic;
     private void init() {
         music = (Music) (getIntent().getExtras().get("music"));
         mpv.setCoverDrawable(R.mipmap.mycover);
         mpv.setProgressVisibility(false);
+        mpv.setMax(Integer.parseInt(music.getDurationMs())/1000);
+        //设置seekBar
+        sbProgressBar.setMax(Integer.parseInt(music.getDurationMs()) / 1000);
+
+        tvDuration.setText(Method.secondsToTime(Integer.parseInt(music.getDurationMs()) / 1000));
+        tvCurrTime.setText(Method.secondsToTime(0));
         tvMusicName.setText(music.getName());
         tvMusicArtist.setText(music.getArtist());
-        player = MediaPlayer.create(this, Uri.parse(music.getPath()));
-        //设置seekBar
-        sbProgressBar.setDrawingCacheBackgroundColor(Color.argb(100,100,100,100));
-        sbProgressBar.setMax(player.getDuration());
-        tvDuration.setText(Method.secondsToTime(player.getDuration()/1000));
-        tvCurrTime.setText(Method.secondsToTime(0));
-        //加载音乐
-        player.reset();
-        try {
-            player.setDataSource(music.getPath());
-            player.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+
     }
 
     @Override
@@ -68,17 +66,37 @@ public class PlayMusicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_play_music);
         ButterKnife.bind(this);
         init();
+        //启动服务
+        startMusic = new Intent(this, MusicService.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("music",music);
+        startMusic.putExtra("path", music.getPath());
 
+        musicConn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                musicPlayer = (MusicPlayer) service;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        };
+        startService(startMusic);
+        boolean flag = bindService(startMusic, musicConn, BIND_ABOVE_CLIENT);
+        Log.e("FLAG", flag + "");
         //中间点击暂停的按钮监听
         mpv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mpv.isRotating()) {
                     mpv.stop();
-                    player.pause();
+                    musicPlayer.pause();
                 } else {
                     mpv.start();
+                    musicPlayer.play();
                     handler.post(start);
+
                 }
             }
         });
@@ -86,23 +104,19 @@ public class PlayMusicActivity extends AppCompatActivity {
         sbProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvCurrTime.setText(Method.secondsToTime(progress/1000));
+                Log.e("PRO",progress+"");
+                tvCurrTime.setText(Method.secondsToTime(progress));
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                player.pause();
-                if (mpv.isRotating())
-                    mpv.stop();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                player.seekTo(sbProgressBar.getProgress());
-                player.start();
-
-                if (!mpv.isRotating())
-                    mpv.start();
+                //进度条的单位是秒，seekTo的单位是ms
+                musicPlayer.seekTo(sbProgressBar.getProgress()*1000);
+                musicPlayer.play();
             }
         });
     }
@@ -120,7 +134,7 @@ public class PlayMusicActivity extends AppCompatActivity {
     Runnable start = new Runnable() {
         @Override
         public void run() {
-            player.start();
+            musicPlayer.play();
             handler.post(updatesb);
             //用一个handler更新SeekBar
         }
@@ -129,7 +143,8 @@ public class PlayMusicActivity extends AppCompatActivity {
     Runnable updatesb = new Runnable() {
         @Override
         public void run() {
-            sbProgressBar.setProgress(player.getCurrentPosition());
+            //进度条的单位是秒，getCurrentPosition的单位是ms
+            sbProgressBar.setProgress(musicPlayer.getCurrentPosition()/1000);
             handler.postDelayed(updatesb, 1000);
             //每秒钟更新一次
         }
@@ -137,13 +152,28 @@ public class PlayMusicActivity extends AppCompatActivity {
     };
 
     @Override
-    public void finish() {
-        player.release();
-        super.finish();
+    protected void onDestroy() {
+        unbindService(musicConn);
+        stopService(startMusic);
+        super.onDestroy();
+    }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        View decorView = this.getWindow().getDecorView();
+        if (hasFocus) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
     }
 }
 /**
  * 1. 打开播放界面后，直接滑动进度条，不播放音乐。
  * 2. 在播放音乐时点击进度条，中间的图标不变
- * */
+ * 3. 启动服务时无法调用onBind（）方法
+ */
