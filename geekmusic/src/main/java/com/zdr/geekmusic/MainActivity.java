@@ -1,13 +1,11 @@
 package com.zdr.geekmusic;
 
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -16,8 +14,8 @@ import com.zdr.geekmusic.adapter.MusicAdapter;
 import com.zdr.geekmusic.entity.Music;
 import com.zdr.geekmusic.sortListView.ClearEditText;
 import com.zdr.geekmusic.sortListView.SideBar;
+import com.zdr.geekmusic.utils.DataUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -42,14 +40,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            //透明状态栏
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            //透明导航栏
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        }
         initView();
     }
 
     //初始化界面
     private void initView() {
         //绑定弹出的点击显示字母
+        musics = DataUtils.getMusics();
+
         sidrbar.setTextView(dialog);
-        findMusic();
         adapter = new MusicAdapter(musics, this);
         musicList.setAdapter(adapter);
 
@@ -57,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         sidrbar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {
-
                 musicList.setSelection(adapter.getFirstIndexForLetters(s));
             }
         });
@@ -66,41 +71,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, PlayMusicActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("music",musics.get(position));
-                intent.putExtras(bundle);
-
+                intent.putExtra("position", position);
                 startActivity(intent);
-
             }
         });
-    }
-
-    //初始化音乐
-    private void findMusic() {
-        musics = new ArrayList<>();
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        ContentResolver resolver = getContentResolver();
-        Cursor cursor = resolver.query(uri,
-                new String[]{
-                        MediaStore.Audio.Media.TITLE,
-                        MediaStore.Audio.Media.DATA,
-                        MediaStore.Audio.Media.ARTIST,
-                        MediaStore.Audio.Media.DURATION,
-                        MediaStore.Audio.Media.ALBUM}
-                , MediaStore.Audio.Media.DURATION + ">60000", null, null);
-
-        if (cursor == null)
-            return;
-        while (cursor.moveToNext()) {
-            Music music = new Music();
-            music.setName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-            music.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
-            music.setArtist(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
-            music.setDurationMs(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
-            music.setAlbum(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)));
-            musics.add(music);
-        }
-        cursor.close();
     }
 }

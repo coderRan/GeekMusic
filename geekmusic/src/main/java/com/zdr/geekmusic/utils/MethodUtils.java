@@ -8,15 +8,33 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
 /**
- * 将汉字转换成拼音
- * Created by zdr on 16-8-31.
+ * 方法类
+ * Created by zdr on 16-9-2.
  */
-public class PinYin {
+public class MethodUtils {
+
+    /**
+     * 返回一个时间格式 04：35
+     * @param seconds 毫秒值
+     * @return 格式化后的时间
+     */
+    public static String secondsToTime(int seconds) {
+        String time;
+        String minutesText = String.valueOf(seconds / 60);
+        if (minutesText.length() == 1) minutesText = "0" + minutesText;
+
+        String secondsText = String.valueOf(seconds % 60);
+        if (secondsText.length() == 1) secondsText = "0" + secondsText;
+
+        time = minutesText + ":" + secondsText;
+
+        return time;
+    }
     /**
      * 将字符串中的中文转化为拼音,其他字符不变
      *
-     * @param inputString
-     * @return
+     * @param inputString 中文字符
+     * @return 拼音字符
      */
     public static String getPingYin(String inputString) {
         HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
@@ -28,12 +46,12 @@ public class PinYin {
         String output = "";
 
         try {
-            for (int i = 0; i < input.length; i++) {
-                if (Character.toString(input[i]).matches("[\\u4E00-\\u9FA5]+")) {
-                    String[] temp = PinyinHelper.toHanyuPinyinStringArray(input[i], format);
+            for (char anInput : input) {
+                if (Character.toString(anInput).matches("[\\u4E00-\\u9FA5]+")) {
+                    String[] temp = PinyinHelper.toHanyuPinyinStringArray(anInput, format);
                     output += temp[0];
                 } else
-                    output += Character.toString(input[i]);
+                    output += Character.toString(anInput);
             }
         } catch (BadHanyuPinyinOutputFormatCombination e) {
             e.printStackTrace();
@@ -46,15 +64,15 @@ public class PinYin {
      * @return 汉语拼音首字母
      */
     public static String getFirstSpell(String chinese) {
-        StringBuffer pybf = new StringBuffer();
+        StringBuilder pybf = new StringBuilder();
         char[] arr = chinese.toCharArray();
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
         defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] > 128) {
+        for (char anArr : arr) {
+            if (anArr > 128) {
                 try {
-                    String[] temp = PinyinHelper.toHanyuPinyinStringArray(arr[i], defaultFormat);
+                    String[] temp = PinyinHelper.toHanyuPinyinStringArray(anArr, defaultFormat);
                     if (temp != null) {
                         pybf.append(temp[0].charAt(0));
                     }
@@ -62,7 +80,7 @@ public class PinYin {
                     e.printStackTrace();
                 }
             } else {
-                pybf.append(arr[i]);
+                pybf.append(anArr);
             }
         }
         return pybf.toString().replaceAll("\\W", "").trim();
@@ -73,22 +91,23 @@ public class PinYin {
      * @return 汉语拼音
      */
     public static String getFullSpell(String chinese) {
-        StringBuffer pybf = new StringBuffer();
+        StringBuilder pybf = new StringBuilder();
         char[] arr = chinese.toCharArray();
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
         defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] > 128) {
+        for (char anArr : arr) {
+            if (anArr > 128) {
                 try {
-                    pybf.append(PinyinHelper.toHanyuPinyinStringArray(arr[i], defaultFormat)[0]);
+                    pybf.append(PinyinHelper.toHanyuPinyinStringArray(anArr, defaultFormat)[0]);
                 } catch (BadHanyuPinyinOutputFormatCombination e) {
                     e.printStackTrace();
                 }
             } else {
-                pybf.append(arr[i]);
+                pybf.append(anArr);
             }
         }
         return pybf.toString();
     }
+
 }

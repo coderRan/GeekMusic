@@ -2,7 +2,7 @@ package com.zdr.geekmusic.entity;
 
 import android.support.annotation.NonNull;
 
-import com.zdr.geekmusic.utils.PinYin;
+import com.zdr.geekmusic.utils.MethodUtils;
 
 import java.io.Serializable;
 
@@ -65,7 +65,7 @@ public class Music implements Comparable<Music> , Serializable {
         return nameLetters;
     }
     private void setNameLetters() {
-        this.nameLetters = PinYin.getFirstSpell(this.name).toUpperCase().charAt(0)+"";
+        this.nameLetters = MethodUtils.getFirstSpell(this.name).toUpperCase().charAt(0)+"";
     }
 
     @Override
