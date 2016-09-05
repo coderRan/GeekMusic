@@ -6,12 +6,12 @@ package com.zdr.geekmusic.utils;
  */
 public class Constants {
     //单曲循环
-    public static final int PLAY_MODE_SINGLE = 0x01;
-    //顺序播放，当播放到最后一曲时停止
-    public static final int PLAY_MODE_ORDER = 0x02;
+    public static final int PLAY_MODE_SINGLE = 1;
     //列表循环
-    public static final int PLAY_MODE_ALL_REPEAT = 0x03;
+    public static final int PLAY_MODE_ALL_REPEAT = 2;
     //随机播放
-    public static final int PLAY_MODE_SHUFFLE = 0x04;
-
+    public static final int PLAY_MODE_SHUFFLE = 3;
+    //sp文件
+    public static final String SETTINGS_FILE = "settings";
+    public static final String PLAY_MODE = "playMode";
 }

@@ -12,6 +12,6 @@ public class GeekMusicApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
-        DataUtils.initMusic(this);
+        DataUtils.initData(this);
     }
 }
