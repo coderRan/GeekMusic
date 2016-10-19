@@ -1,5 +1,7 @@
 package com.zdr.geekmusic.utils;
 
+
+
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
@@ -12,7 +14,6 @@ import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombi
  * Created by zdr on 16-9-2.
  */
 public class MethodUtils {
-
     /**
      * 返回一个时间格式 04：35
      * @param seconds 毫秒值
@@ -109,5 +110,7 @@ public class MethodUtils {
         }
         return pybf.toString();
     }
+
+
 
 }

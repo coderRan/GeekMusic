@@ -27,7 +27,7 @@
         <ListView
             android:layout_marginLeft="@dimen/marginLeft"
             android:layout_marginRight="@dimen/marginLeft"
-            android:id="@+id/country_lvcountry"
+            android:id="@+id/lv_music_list"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center"

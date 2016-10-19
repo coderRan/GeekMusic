@@ -4,17 +4,19 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.zdr.geekmusic.DBUtils.MusicDao;
 import com.zdr.geekmusic.adapter.MusicAdapter;
 import com.zdr.geekmusic.entity.Music;
 import com.zdr.geekmusic.sortListView.ClearEditText;
 import com.zdr.geekmusic.sortListView.SideBar;
-import com.zdr.geekmusic.utils.DataUtils;
+import com.zdr.geekmusic.utils.GlobarVar;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.filter_edit)
     ClearEditText filterEdit;
-    @BindView(R.id.country_lvcountry)
+    @BindView(R.id.lv_music_list)
     ListView musicList;
     @BindView(R.id.dialog)
     TextView dialog;
@@ -34,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Music> musics;
     private MusicAdapter adapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     //初始化界面
     private void initView() {
         //绑定弹出的点击显示字母
-        musics = DataUtils.getMusics();
+        musics = MusicDao.getMusicDao(this).findAllMusic();
 
         sidrbar.setTextView(dialog);
         adapter = new MusicAdapter(musics, this);
@@ -72,8 +73,22 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, PlayMusicActivity.class);
                 intent.putExtra("position", position);
+                GlobarVar.getMusicPlayer().musicSeekTo(position);
+
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e("onStop", "onStop执行");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.e("onDestroy", "onDestroy执行");
+        super.onDestroy();
     }
 }

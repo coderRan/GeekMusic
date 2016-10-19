@@ -58,11 +58,11 @@
         app:textSize="14sp" />
 
     <LinearLayout
-        android:layout_marginBottom="20dp"
         android:id="@+id/ll_control"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
@@ -76,22 +76,22 @@
             android:src="@mipmap/last_music" />
 
         <ImageView
-            android:id="@+id/iv_like_music"
+            android:id="@+id/iv_pause_music"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:contentDescription="@mipmap/start_music"
+            android:contentDescription="@mipmap/pause"
             android:scaleType="fitCenter"
-            android:src="@mipmap/start_music" />
+            android:src="@mipmap/pause" />
 
         <ImageView
             android:id="@+id/iv_next_music"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:contentDescription="@mipmap/next_music"
             android:scaleType="fitCenter"
-            android:src="@mipmap/next_music"
-            android:contentDescription="@mipmap/next_music" />
+            android:src="@mipmap/next_music" />
     </LinearLayout>
 
     <SeekBar
@@ -105,8 +105,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/sb_progress_bar"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_marginTop="10dp">
 
         <TextView
@@ -124,18 +124,30 @@
             android:text="时间"
             android:textColor="@color/colorText" />
     </RelativeLayout>
-    <!--TODO 添加播放模式功能，单曲循环，列表循环-->
     <RelativeLayout
-        android:layout_above="@id/rl_time"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_above="@id/rl_time">
+
         <ImageView
-            android:layout_marginLeft="@dimen/marginLeft"
             android:id="@+id/iv_play_mode"
             android:layout_width="38dp"
             android:layout_height="38dp"
+
+            android:contentDescription="@mipmap/all_repeat"
             android:scaleType="fitCenter"
-            android:src="@mipmap/all_repeat"
-            android:contentDescription="@mipmap/all_repeat" />
+            android:src="@mipmap/all_repeat" />
+
+        <ImageView
+            android:id="@+id/iv_like_music"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@mipmap/start_music"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/start_music" />
+
     </RelativeLayout>
 </RelativeLayout>

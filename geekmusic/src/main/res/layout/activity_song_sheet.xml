@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background"
+    tools:context="com.zdr.geekmusic.SongSheetActivity">
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_marginTop="@dimen/marginLeft"
+        android:layout_marginBottom="@dimen/marginLeft"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/colorText"
+        android:text="我的歌单"
+        android:textSize="@dimen/main_text_size"/>
+    <Button
+        android:layout_below="@id/tv_title"
+        android:background="#00FFFFFF"
+        android:text="本地歌曲"
+        android:textColor="@color/colorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_all_music"/>
+
+    <Button
+        android:layout_alignParentBottom="true"
+        android:background="#00FFFFFF"
+        android:text="添加歌单"
+        android:textColor="@color/colorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_add_sheep"/>
+    <ExpandableListView
+        android:layout_above="@id/btn_add_sheep"
+        android:layout_below="@id/btn_all_music"
+        android:id="@id/android:list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawSelectorOnTop="false"/>
+</RelativeLayout>

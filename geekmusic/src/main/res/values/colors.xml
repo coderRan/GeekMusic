@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorSplit">#bdcaff</color>
     <color name="colorText">#ffffff</color>
+    <color name="colorTextTop">#3b84c6</color>
+    <color name="colorSheepItem">#9a979797</color>
 </resources>

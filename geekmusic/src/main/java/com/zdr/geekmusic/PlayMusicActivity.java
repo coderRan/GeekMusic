@@ -1,13 +1,10 @@
 package com.zdr.geekmusic;
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
+
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
@@ -16,20 +13,27 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.zdr.geekmusic.DBUtils.KVSheepDao;
+import com.zdr.geekmusic.DBUtils.MusicDao;
+import com.zdr.geekmusic.DBUtils.MusicSheepDao;
+import com.zdr.geekmusic.entity.KVSheep;
 import com.zdr.geekmusic.entity.Music;
 import com.zdr.geekmusic.service.MusicPlayer;
 import com.zdr.geekmusic.service.MusicService;
 import com.zdr.geekmusic.utils.Constants;
-import com.zdr.geekmusic.utils.DataUtils;
+import com.zdr.geekmusic.utils.GlobarVar;
 import com.zdr.geekmusic.utils.MethodUtils;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import co.mobiwise.playerview.MusicPlayerView;
 
-public class PlayMusicActivity extends AppCompatActivity implements MusicService.Updata {
+public class PlayMusicActivity extends AppCompatActivity implements MusicService.UIListener {
     @BindView(R.id.mpv)
     MusicPlayerView mpv;
     @BindView(R.id.tv_music_name)
@@ -52,27 +56,40 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
     RelativeLayout rlTime;
     @BindView(R.id.iv_play_mode)
     ImageView ivPlayMode;
+    @BindView(R.id.iv_pause_music)
+    ImageView ivPauseMusic;
 
-    private Music music;
+    private Music currMusic;
+    private List<Music> mMusicList;
     private Handler handler = new Handler();
-    private ServiceConnection musicConn;
     private MusicPlayer musicPlayer;
     private boolean isPost = false;
     private int playMode;
     private SharedPreferences sp;
 
+    private MusicSheepDao musicSheepDao;
+    private KVSheepDao mKVSheepDao;
+    private MusicDao mMusicDao;
+
     private void init() {
-        mpv.setCoverDrawable(R.mipmap.music_bg);
+
+        mpv.setCoverDrawable(R.mipmap.music_bg_3);
         mpv.setProgressVisibility(false);
-        mpv.setMax(Integer.parseInt(music.getDurationMs()) / 1000);
+        mpv.setProgress(0);
+        mpv.setMax(Integer.parseInt(currMusic.getDurationMs()) / 1000);
+        mpv.stop();
+        if(!mpv.isRotating()){
+            mpv.start();
+        }
+
         //设置seekBar
-        sbProgressBar.setMax(Integer.parseInt(music.getDurationMs()) / 1000);
+        sbProgressBar.setMax(Integer.parseInt(currMusic.getDurationMs()) / 1000);
         sbProgressBar.setProgress(0);
 
-        tvDuration.setText(MethodUtils.secondsToTime(Integer.parseInt(music.getDurationMs()) / 1000));
+        tvDuration.setText(MethodUtils.secondsToTime(Integer.parseInt(currMusic.getDurationMs()) / 1000));
         tvCurrTime.setText(MethodUtils.secondsToTime(0));
-        tvMusicName.setText(music.getName());
-        tvMusicArtist.setText(music.getArtist());
+        tvMusicName.setText(currMusic.getName());
+        tvMusicArtist.setText(currMusic.getArtist());
         sp = getSharedPreferences(Constants.SETTINGS_FILE, MODE_PRIVATE);
         playMode = sp.getInt(Constants.PLAY_MODE, Constants.PLAY_MODE_ALL_REPEAT);
         switch (playMode) {
@@ -86,6 +103,12 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
                 ivPlayMode.setImageResource(R.mipmap.shuffle_music);
                 break;
         }
+
+        if(currMusic.isMyLove()){
+            ivLikeMusic.setImageResource(R.mipmap.checked_start_music);
+        }else {
+            ivLikeMusic.setImageResource(R.mipmap.start_music);
+        }
     }
 
     @Override
@@ -93,6 +116,7 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
         ButterKnife.bind(this);
+        mMusicList = MusicDao.getMusicDao(this).findAllMusic();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             //透明状态栏
@@ -101,50 +125,24 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         }
 
-        music = DataUtils.getMusics().get(getIntent().getExtras().getInt("position"));
+        currMusic = mMusicList.get(getIntent().getExtras().getInt("position"));
+        musicPlayer = GlobarVar.getMusicPlayer();
         init();
-        //启动服务
-        Intent startMusic = new Intent(this, MusicService.class);
-        startMusic.putExtra("position", getIntent().getExtras().getInt("position"));
-        musicConn = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                musicPlayer = (MusicPlayer) service;
-                musicPlayer.setUpdataListener(PlayMusicActivity.this);
-            }
+        musicPlayer.setUpdataListener(this);
+        if (!mpv.isRotating()) {
+            mpv.start();
+        }
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        };
-        bindService(startMusic, musicConn, BIND_AUTO_CREATE);
-
-        //中间点击暂停的按钮监听
-        mpv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mpv.isRotating()) {
-                    mpv.stop();
-                    if (musicPlayer != null)
-                        musicPlayer.pause();
-                } else {
-                    mpv.start();
-                    if (musicPlayer != null)
-                        musicPlayer.play();
-                    handler.post(start);
-                    isPost = true;
-
-                }
-            }
-        });
+        if (!isPost) {
+            handler.post(start);
+            isPost = true;
+        }
         //seekBar滑动监听
         sbProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
                 tvCurrTime.setText(MethodUtils.secondsToTime(progress));
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 if (!mpv.isRotating()) {
@@ -164,6 +162,10 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
                 musicPlayer.play();
             }
         });
+
+        musicSheepDao = MusicSheepDao.getmMusicSheepDao(this);
+        mKVSheepDao = KVSheepDao.getKvSheepDao(this);
+        mMusicDao = MusicDao.getMusicDao(this);
     }
 
     Runnable start = new Runnable() {
@@ -191,34 +193,79 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
     };
 
     @Override
-    public void updata(int nextIndex) {
-        music = DataUtils.getMusics().get(nextIndex);
-        init();
+    public void refresh(int nextIndex) {
+        currMusic = mMusicList.get(nextIndex);
 
+        init();
+    }
+
+    @Override
+    public void notificationRefresh() {
+        if (musicPlayer.isPlaying()) {
+            mpv.stop();
+            musicPlayer.pause();
+            ivPauseMusic.setImageResource(R.mipmap.play);
+        } else {
+            mpv.start();
+            musicPlayer.play();
+            ivPauseMusic.setImageResource(R.mipmap.pause);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        unbindService(musicConn);
         super.onDestroy();
     }
 
-    @OnClick({R.id.iv_last_music, R.id.iv_like_music, R.id.iv_next_music, R.id.iv_play_mode})
+    @OnClick({R.id.iv_last_music, R.id.iv_like_music, R.id.iv_next_music,
+            R.id.iv_play_mode,R.id.iv_pause_music})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_last_music:
-                if(musicPlayer!=null){
+                if (musicPlayer != null) {
                     musicPlayer.lastMusic();
                 }
-                view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.press_anim));
+                if (!mpv.isRotating()) {
+                    mpv.start();
+                }
                 break;
             case R.id.iv_like_music:
-                view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.press_anim));
+                if(!currMusic.isMyLove()){
+                    addLike();
+                    currMusic.setMyLove(true);
+                    mMusicDao.updateMusic(currMusic);
+                    ((ImageView) view).setImageResource(R.mipmap.checked_start_music);
+                }else {
+                    removeLike();
+                    currMusic.setMyLove(false);
+                    mMusicDao.updateMusic(currMusic);
+                    ((ImageView) view).setImageResource(R.mipmap.start_music);
+                }
+                break;
+            case R.id.iv_pause_music:
+                if (musicPlayer != null) {
+                    if (musicPlayer.isPlaying()) {
+                        mpv.stop();
+                        musicPlayer.pause();
+                        ((ImageView) view).setImageResource(R.mipmap.play);
+                    } else {
+                        mpv.start();
+                        musicPlayer.play();
+                        ((ImageView) view).setImageResource(R.mipmap.pause);
+                    }
+                }
                 break;
             case R.id.iv_next_music:
-                if(musicPlayer!=null)
+                if (musicPlayer != null)
                     musicPlayer.nextMusic();
-                view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.press_anim));
+                if (!mpv.isRotating()) {
+                    mpv.start();
+                }
                 break;
             case R.id.iv_play_mode:
                 switch (playMode) {
@@ -235,12 +282,36 @@ public class PlayMusicActivity extends AppCompatActivity implements MusicService
                         ((ImageView) view).setImageResource(R.mipmap.single_music);
                         break;
                 }
-                view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.press_anim));
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putInt(Constants.PLAY_MODE, playMode);
                 editor.apply();
                 musicPlayer.setPlayMode(playMode);
                 break;
+
+        }
+        view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.press_anim));
+    }
+
+    /**
+     * 将音乐加入我的收藏
+     */
+    private void addLike(){
+        int sheepId = musicSheepDao.getSheepIdByName("我的收藏");
+        int musicId = currMusic.getId();
+        if(sheepId!=-1){
+            mKVSheepDao.addKV(new KVSheep(musicId, sheepId));
+            Toast.makeText(PlayMusicActivity.this, "收藏成功", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+    private void removeLike(){
+        int sheepId = musicSheepDao.getSheepIdByName("我的收藏");
+        int musicId = currMusic.getId();
+        if(sheepId!=-1){
+            mKVSheepDao.removeKV(new KVSheep(musicId, sheepId));
+            Toast.makeText(PlayMusicActivity.this, "取消收藏", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

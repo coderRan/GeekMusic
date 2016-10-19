@@ -25,6 +25,7 @@ public class MusicAdapter extends BaseAdapter {
     private List<Music> mData;
     private Context mContext;
     private MusicOperation operation;
+    private Music playing = null;
 
     public MusicAdapter(List<Music> mData, Context mContext) {
         this.mData = mData;
@@ -49,7 +50,7 @@ public class MusicAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView( final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
 
@@ -70,27 +71,23 @@ public class MusicAdapter extends BaseAdapter {
                 }
             }
         });
-
-        String posiStr = mData.get(position).getNameLetters();
-
-        if(position == getFirstIndexForLetters(posiStr)){
-            holder.catalog.setVisibility(View.VISIBLE);
-            holder.catalog.setText(mData.get(position).getNameLetters());
+        if(mData.get(position).equals(playing)){
+            holder.ivListPlay.setVisibility(View.VISIBLE);
         }else {
-            holder.catalog.setVisibility(View.GONE);
+            holder.ivListPlay.setVisibility(View.GONE);
         }
         return convertView;
     }
 
-    class ViewHolder {
-        @BindView(R.id.catalog)
-        TextView catalog;
+    static class ViewHolder {
         @BindView(R.id.tv_music_name)
         TextView tvMusicName;
         @BindView(R.id.tv_music_artist)
         TextView tvMusicArtist;
         @BindView(R.id.iv_music_operation)
         ImageView ivMusicOperation;
+        @BindView(R.id.iv_list_play)
+        ImageView ivListPlay;
 
         ViewHolder(View view) {
             ButterKnife.bind(this, view);
@@ -118,5 +115,7 @@ public class MusicAdapter extends BaseAdapter {
         return -1;
     }
 
-
+    public void setPlaying(Music playing) {
+        this.playing = playing;
+    }
 }

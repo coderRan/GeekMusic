@@ -2,14 +2,17 @@ package com.zdr.geekmusic.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.zdr.geekmusic.entity.Music;
+import com.zdr.geekmusic.service.MusicService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -20,10 +23,9 @@ import java.util.Random;
 public class DataUtils {
     private static List<Music> musics;
     private static Random random;
-    public static void initData(Context context){
+    public static void initData(){
         random = new Random();
 
-        initMusic(context);
     }
     public static void initMusic(Context context){
 
@@ -53,6 +55,7 @@ public class DataUtils {
         cursor.close();
     }
     public static List<Music> getMusics(){
+        Collections.sort(musics);
         return musics;
     }
 
@@ -63,5 +66,7 @@ public class DataUtils {
     public static int getRandonInt(int max) {
         return random.nextInt(max);
     }
+
+
 
 }

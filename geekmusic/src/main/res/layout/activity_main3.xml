@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.zdr.geekmusic.Main3Activity">
+
+    <com.zdr.geekmusic.view.PagerEnabledSlidingPaneLayout
+        android:id="@+id/drawable"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--子面板-->
+        <RelativeLayout
+            android:background="@mipmap/music_sheep_bg"
+            android:orientation="vertical"
+            android:layout_width="280dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_marginTop="45dp"
+                android:id="@+id/tv_local_music"
+                android:textColor="@color/colorText"
+                android:textSize="@dimen/main_text_size"
+                android:background="@color/colorSheepItem"
+                android:layout_width="match_parent"
+                android:text="@string/local_music"
+                android:gravity="center_vertical"
+                android:paddingLeft="48dp"
+                android:layout_height="45dp"/>
+
+            <TextView
+                android:layout_alignParentBottom="true"
+                android:id="@+id/tv_add_sheep"
+                android:textColor="@color/colorText"
+                android:textSize="@dimen/main_text_size"
+                android:background="@color/colorSheepItem"
+                android:layout_width="match_parent"
+                android:text="@string/add_sheep"
+                android:gravity="center_vertical"
+                android:paddingLeft="48dp"
+                android:layout_height="45dp"/>
+            <ListView
+                android:layout_above="@id/tv_add_sheep"
+                android:layout_below="@id/tv_local_music"
+                android:layout_marginTop="20dp"
+                android:id="@+id/lv_music_sheep"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </ListView>
+        </RelativeLayout>
+        <!--主面板-->
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.zdr.geekmusic.view.TopCenterImageView
+                android:id="@+id/blurred_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp">
+                <com.zdr.geekmusic.view.ScrollableImageView
+                    android:id="@+id/blurred_image_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp" />
+                <LinearLayout
+                    android:background="@drawable/header"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/tb_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </android.support.design.widget.TabLayout>
+                </LinearLayout>
+            </FrameLayout>
+            <android.support.v4.view.ViewPager
+                android:layout_marginTop="50dp"
+                android:id="@+id/vp_main"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v4.view.ViewPager>
+        </FrameLayout>
+
+    </com.zdr.geekmusic.view.PagerEnabledSlidingPaneLayout>
+</RelativeLayout>
